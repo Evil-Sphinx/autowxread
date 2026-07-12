@@ -96,7 +96,7 @@ class PushNotification:
         """ 飞书机器人推送 """
         attempts = 5
         payload = {"msg_type": "text",
-                   "content": json.dumps({'text': content}).encode('utf-8'),
+                   "content": json.dumps({'text': content}),
                    "uuid": str(uuid.uuid4()),
                    "receive_id": FEISHU_RECEIVE_ID}
         logger.info("✅ FeiShu请求: %s", json.dumps(payload))
