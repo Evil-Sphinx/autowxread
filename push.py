@@ -95,7 +95,9 @@ class PushNotification:
     def push_feishu(self, content):
         """ 飞书机器人推送 """
         attempts = 5
-        payload = {"msg_type": "text", "content": json.dumps({'text': content}), "uuid": str(uuid.uuid4()),
+        payload = {"msg_type": "text",
+                   "content": json.dumps({'text': content}).encode('utf-8'),
+                   "uuid": str(uuid.uuid4()),
                    "receive_id": FEISHU_RECEIVE_ID}
         logger.info("✅ FeiShu请求: %s", json.dumps(payload))
         for attempt in range(attempts):
