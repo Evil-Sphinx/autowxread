@@ -97,7 +97,7 @@ class PushNotification:
         attempts = 5
         payload = {"msg_type": "text", "content": json.dumps({'text': content}), "uuid": uuid.uuid4(),
                    "receive_id": FEISHU_RECEIVE_ID}
-
+        logger.info("✅ FeiShu请求: %s", json.dumps(payload))
         for attempt in range(attempts):
             try:
                 response = requests.post("https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=open_id",
@@ -106,8 +106,6 @@ class PushNotification:
                                          timeout=10)
                 response.raise_for_status()
                 logger.info("✅ FeiShu响应: %s", response.text)
-
-                logger.info("✅ FeiShu请求: %s", json.dumps(payload))
                 break
             except requests.exceptions.RequestException as e:
                 logger.error("❌ FeiShu推送失败: %s", e)
