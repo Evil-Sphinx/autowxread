@@ -95,7 +95,7 @@ class PushNotification:
     def push_feishu(self, content):
         """ 飞书机器人推送 """
         attempts = 5
-        payload = {"msg_type": "text", "content": json.dumps({'text': content}).encode('utf-8'), "uuid": uuid.uuid4(),
+        payload = {"msg_type": "text", "content": json.dumps({'text': content}), "uuid": uuid.uuid4(),
                    "receive_id": FEISHU_RECEIVE_ID}
 
         for attempt in range(attempts):
@@ -106,6 +106,8 @@ class PushNotification:
                                          timeout=10)
                 response.raise_for_status()
                 logger.info("✅ FeiShu响应: %s", response.text)
+
+                logger.info("✅ FeiShu请求: %s", json.dumps(payload))
                 break
             except requests.exceptions.RequestException as e:
                 logger.error("❌ FeiShu推送失败: %s", e)
