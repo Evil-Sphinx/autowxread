@@ -1,11 +1,15 @@
 # push.py 支持 PushPlus 、wxpusher、Telegram 的消息推送模块
+import json
+import logging
 import os
 import random
 import time
-import json
+import uuid
+
 import requests
-import logging
-from config import PUSHPLUS_TOKEN, TELEGRAM_CHAT_ID, TELEGRAM_BOT_TOKEN, WXPUSHER_SPT, SERVERCHAN_SPT, FEISHU_WEBHOOK
+
+from config import (PUSHPLUS_TOKEN, TELEGRAM_CHAT_ID, TELEGRAM_BOT_TOKEN, WXPUSHER_SPT, SERVERCHAN_SPT,
+                    FEISHU_RECEIVE_ID, FEISHU_TENANT_ACCESS_TOKEN)
 
 logger = logging.getLogger(__name__)
 
@@ -88,14 +92,17 @@ class PushNotification:
                     logger.info("将在 %d 秒后重试...", sleep_time)
                     time.sleep(sleep_time)
 
-    def push_feishu(self, content, webhook):
+    def push_feishu(self, content):
         """ 飞书机器人推送 """
         attempts = 5
-        payload = {"msg_type": "text", "content": content}
+        payload = {"msg_type": "text", "content": json.dumps({'text': content}).encode('utf-8'), "uuid": uuid.uuid4(),
+                   "receive_id": FEISHU_RECEIVE_ID}
 
         for attempt in range(attempts):
             try:
-                response = requests.post(webhook, headers=self.headers, data=json.dumps(payload).encode('utf-8'),
+                response = requests.post("https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=open_id",
+                                         headers={'Authorization': 'Bearer ' + FEISHU_TENANT_ACCESS_TOKEN},
+                                         json=payload,
                                          timeout=10)
                 response.raise_for_status()
                 logger.info("✅ FeiShu响应: %s", response.text)
@@ -157,6 +164,6 @@ def push(content, method):
     elif method == "serverchan":
         return notifier.push_serverChan(content, SERVERCHAN_SPT)
     elif method == "feishu":
-        return notifier.push_feishu(content, FEISHU_WEBHOOK)
+        return notifier.push_feishu(content)
     else:
         raise ValueError("❌ 无效的通知渠道，请选择 'pushplus'、'telegram' 或 'wxpusher'")
