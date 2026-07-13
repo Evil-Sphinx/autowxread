@@ -23,6 +23,8 @@ SERVERCHAN_SPT = "" or os.getenv("SERVERCHAN_SPT")
 # 飞书机器人推送时需填
 FEISHU_TENANT_ACCESS_TOKEN = "" or os.getenv("FEISHU_TENANT_ACCESS_TOKEN")
 FEISHU_RECEIVE_ID = "" or os.getenv("FEISHU_RECEIVE_ID")
+FEISHU_APP_ID = "" or os.getenv("FEISHU_APP_ID")
+FEISHU_APP_SECRET = "" or os.getenv("FEISHU_APP_SECRET")
 
 # read接口的bash命令，本地部署时可对应替换headers、cookies
 curl_str = os.getenv('WXREAD_CURL_BASH')

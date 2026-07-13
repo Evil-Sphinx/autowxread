@@ -9,7 +9,7 @@ import uuid
 import requests
 
 from config import (PUSHPLUS_TOKEN, TELEGRAM_CHAT_ID, TELEGRAM_BOT_TOKEN, WXPUSHER_SPT, SERVERCHAN_SPT,
-                    FEISHU_RECEIVE_ID, FEISHU_TENANT_ACCESS_TOKEN)
+                    FEISHU_RECEIVE_ID, FEISHU_APP_ID, FEISHU_APP_SECRET)
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +92,11 @@ class PushNotification:
                     logger.info("将在 %d 秒后重试...", sleep_time)
                     time.sleep(sleep_time)
 
+    def get_token(self):
+        url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
+        resp = requests.post(url, json={"app_id": FEISHU_APP_ID, "app_secret": FEISHU_APP_SECRET})
+        return resp.json()["tenant_access_token"]
+
     def push_feishu(self, content):
         """ 飞书机器人推送 """
         attempts = 5
@@ -99,11 +104,12 @@ class PushNotification:
                    "content": json.dumps({'text': content}),
                    "uuid": str(uuid.uuid4()),
                    "receive_id": FEISHU_RECEIVE_ID}
-        logger.info("✅ FeiShu请求: %s", json.dumps(payload))
+        logger.info(f"✅ FeiShu请求: {payload}")
         for attempt in range(attempts):
             try:
+                token = self.get_token()
                 response = requests.post("https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=open_id",
-                                         headers={'Authorization': 'Bearer ' + FEISHU_TENANT_ACCESS_TOKEN},
+                                         headers={'Authorization': 'Bearer ' + token},
                                          json=payload,
                                          timeout=10)
                 response.raise_for_status()
